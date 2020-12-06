@@ -28,18 +28,25 @@ def login(id, pw, driver):
     driver.find_element_by_xpath('//*[@id="frmNIDLogin"]/fieldset/input').click()
     time.sleep(1)
 
-def getLatestBlog(keyword, driver):
-    search_keywords = 'https://search.naver.com/search.naver?where=blog&sm=tab_opt&query=' + keyword + '&dup_remove=1&post_blogurl=&post_blogurl_without=&nso=so%3Add%2Ca%3Aall%2Cp%3Aall'
-    driver.get(search_keywords)
 
-    # open a new page may takes some time
-    # 이미지가 많으면 페이지 로딩시간이 길 수 있으니 5초 정도 여유를 줌
-    time.sleep(5)
-    
-    # move to current page
-    # 새롭게 연 블로그 페이지로 포인터 이동
-    driver.switch_to.window(driver.window_handles[-1])
-    time.sleep(1)
+def getLatestBlog(keyword, driver):
+    try:
+        search_keywords = 'https://search.naver.com/search.naver?where=blog&sm=tab_opt&query=' + keyword + '&dup_remove=1&post_blogurl=&post_blogurl_without=&nso=so%3Add%2Ca%3Aall%2Cp%3Aall'
+        driver.get(search_keywords)
+        time.sleep(2)
+
+        # open a new page may takes some time
+        # 이미지가 많으면 페이지 로딩시간이 길 수 있으니 5초 정도 여유를 줌
+        driver.find_element_by_class_name("api_txt_lines").click()
+        time.sleep(5)
+        
+        # move to current page
+        # 새롭게 연 블로그 페이지로 포인터 이동
+        driver.switch_to.window(driver.window_handles[-1])
+        time.sleep(1)
+
+    except Exception as e:
+        print("[ERROR] cannot get latest blog:", e.args)
 
 
 def clickLikeButton(driver):
@@ -53,6 +60,7 @@ def clickLikeButton(driver):
         # click like button
         try:
             driver.find_element_by_class_name('u_likeit_list_btn').click()
+            time.sleep(1)
         except:
             # pass if button not exist
             # 좋아요 버튼이 없으면 패스
@@ -61,7 +69,10 @@ def clickLikeButton(driver):
     except Exception as e:
         print("[ERROR] cannot click an like-button:", e.args)
 
+
+# ---------------------------------------------
 # execution
+# ---------------------------------------------
 driver = webdriver.Chrome('./chromedriver')
 login(id, pw, driver)
 getLatestBlog('키보드 리뷰', driver)
