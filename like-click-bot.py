@@ -11,6 +11,8 @@ with open(r'./config.yml') as file:
             id = value
         elif key == 'pw':
             pw = value
+        elif key == 'keyword':
+            keyword = value
 
 
 def login(id, pw, driver):
@@ -75,8 +77,5 @@ def clickLikeButton(driver):
 # ---------------------------------------------
 driver = webdriver.Chrome('./chromedriver')
 login(id, pw, driver)
-getLatestBlog('키보드 리뷰', driver)
+getLatestBlog(keyword, driver)
 clickLikeButton(driver)
-
-
-
