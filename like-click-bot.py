@@ -37,15 +37,9 @@ def getLatestBlog(keyword, driver):
         driver.get(search_keywords)
         time.sleep(2)
 
-        # open a new page may takes some time
-        # 이미지가 많으면 페이지 로딩시간이 길 수 있으니 5초 정도 여유를 줌
-        driver.find_element_by_class_name("api_txt_lines").click()
-        time.sleep(5)
-        
-        # move to current page
-        # 새롭게 연 블로그 페이지로 포인터 이동
-        driver.switch_to.window(driver.window_handles[-1])
-        time.sleep(1)
+        targetBlog = driver.find_element_by_class_name("api_txt_lines") # target블로그 선택
+        driver.get(targetBlog.get_attribute('href')) # target블로그를 현재창에서 열기(새창을 열면 미로그인상태로 인식됨)
+        time.sleep(5) # 이미지가 많으면 페이지 로딩시간이 길 수 있으니 5초 정도 여유를 줌
 
     except Exception as e:
         print("[ERROR] cannot get latest blog:", e.args)
@@ -62,20 +56,32 @@ def clickLikeButton(driver):
         # click like button
         try:
             driver.find_element_by_class_name('u_likeit_list_btn').click()
-            time.sleep(1)
-        except:
+            time.sleep(4)
+        except Exception as e:
             # pass if button not exist
             # 좋아요 버튼이 없으면 패스
-            print("[WARN] like-button not exist")
+            print("[WARN] cannot click an like-button:", e.args)
 
     except Exception as e:
         print("[ERROR] cannot click an like-button:", e.args)
 
 
 # ---------------------------------------------
+# headless option
+# ---------------------------------------------
+options = webdriver.ChromeOptions()
+options.add_argument('headless') # 브라우저 창 안 띄우겠다
+options.add_argument('window-size=1920x1080') # 보통의 FHD화면을 가정
+options.add_argument("disable-gpu") # or options.add_argument("--disable-gpu")
+# headless탐지 방지를 위해 UA를 임의로 설정
+options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+
+# ---------------------------------------------
 # execution
 # ---------------------------------------------
-driver = webdriver.Chrome('./chromedriver')
+driver = webdriver.Chrome('./chromedriver', options=options)
 login(id, pw, driver)
 getLatestBlog(keyword, driver)
 clickLikeButton(driver)
+
+driver.quit()
